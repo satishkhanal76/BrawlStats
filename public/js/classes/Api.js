@@ -14,7 +14,7 @@ export class Api {
      * @returns Promise
      */
     get() {
-        this._promise = new Promise((resolve, reject) => {
+        this._promise = new Promise(async (resolve, reject) => {
             fetch(this._url, {
                 method: 'GET', // *GET, POST, PUT, DELETE, etc.
                 headers: {

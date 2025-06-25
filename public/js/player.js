@@ -1,16 +1,19 @@
 import { Api } from "./classes/Api.js";
-
-let api = new Api();
-let milestones = api.getMilestones();
-
+import { PlayerCharacters } from "./classes/PlayerCharacters.js";
+let api;
+let player;
 
 function updatePlayer(tag) {
-    api.getPlayer(tag).then(data => {
-        api.getMilestones().then(milestones => {
-            player.loadBrawlerMilestones(milestones);
-            player.loadPlayer(data);
-            player.brawlers.sortByRarity();
-        });
+    api.get().then(data => {
+       console.log(data)
+
+       player = new PlayerCharacters(data.brawlers);
+       player.addToDOM();
+        // api.getMilestones().then(milestones => {
+        //     player.loadBrawlerMilestones(milestones);
+        //     player.loadPlayer(data);
+        //     player.brawlers.sortByRarity();
+        // });
     });
 }
 
@@ -31,7 +34,10 @@ const tag = document.getElementById("tag");
 
 playerForm.addEventListener("submit", event => {
     event.preventDefault();
-    updatePlayer(tag.value);
+    let tag = document.getElementById("tag").value;
+    console.log(tag)
+    api = new Api(`/api/player/${tag}`);
+    updatePlayer();
 });
 // form submit complete
 

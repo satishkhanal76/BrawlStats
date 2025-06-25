@@ -9,7 +9,6 @@ export class PlayerCharacter extends Character {
      */
     constructor(character) {
         super(character);
-
         this._power = character.power;
         this._trophies = character.trophies;
         this._highestTrophies = character.highestTrophies;
@@ -20,6 +19,7 @@ export class PlayerCharacter extends Character {
         this._progressStart;
         this._progress;
         this._progressEnd;
+
 
         this.calculateRankImg();
         this.calculateMilestone();
@@ -63,6 +63,7 @@ export class PlayerCharacter extends Character {
 
     calculateRankImg() {
         this._rankObj.find(o => {
+            
             let progressEnd = o.progressStart + o.progress;
             if (this._rank >= o.progressStart && this._rank <= progressEnd) {
                 this._rankImg = o.img_src;

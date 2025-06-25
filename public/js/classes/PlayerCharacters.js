@@ -50,6 +50,7 @@ export class PlayerCharacters extends Characters {
         this.addTitles();
         this._unlockedCharacters.forEach(character => {
             this._unlockedElement.append(character.create());
+            
         });
         this._remainingCharacters.forEach(character => {
             this._remainingElement.append(character.create());
