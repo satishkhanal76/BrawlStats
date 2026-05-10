@@ -22,7 +22,10 @@ app.use(express.static(path.join(__dirname, '../public'), { extensions: ['html',
 
 //serves when the client requests for player information
 app.get("/api/player/:tag", async (request, response) => {
-    let tag = request.params.tag;
+    let tag = request.params.tag
+        .replace("%23", "")
+        .replace("#", "")
+        .toUpperCase();
     
     const url = `https://api.brawlstars.com/v1/players/%23${tag}`;
     const api = new API(url);
@@ -43,7 +46,7 @@ app.get("/api/player/:tag", async (request, response) => {
         response.json(JSON.stringify(player));
     }
     catch(error) {
-        console.log("Brawl Stars API failed. Using fallback player data.");
+        console.log("Brawl Stars API failed. Using fallback player data.", error.message);
 
         try {
             const fallbackPath = path.join(
