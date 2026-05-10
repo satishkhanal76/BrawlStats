@@ -101,5 +101,5 @@ id, name,disabled,arriving_soon,arriving_time,image_src,rarity
 16000102, SIRIUS,,,,../assets/brawler_portraits/16000102.png,
 16000103, NAJIA,,,,../assets/brawler_portraits/16000103.png,mythic
 16000104, DAMIAN,,,,../assets/brawler_portraits/16000104.png,mythic
-16000105, STARR NOVA,,TRUE,,../assets/brawler_portraits/16000105.png,legendary
-16000106, BOLT,,TRUE,,../assets/brawler_portraits/16000106.png,epic
+16000105, STARR NOVA,,,,../assets/brawler_portraits/16000105.png,legendary
+16000106, BOLT,,,,../assets/brawler_portraits/16000106.png,epic

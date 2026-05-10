@@ -18,6 +18,72 @@ html, body{
     font-size:20px;
 }
 
+/* player navigation */
+
+.player-nav-container{
+    padding:16px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.home-link{
+    color:#fff;
+    text-decoration:none;
+    font-size:20px;
+    text-shadow:var(--txsh);
+}
+
+.home-link:hover{
+    text-decoration:underline;
+}
+
+.player-search-form{
+    display:flex;
+    gap:10px;
+}
+
+.player-search-form input{
+    min-width:220px;
+    min-height:42px;
+    padding:8px 12px;
+    border:2px solid #221A22;
+    background:#fff;
+    color:#000;
+    font-size:16px;
+}
+
+.player-search-form button{
+    min-height:42px;
+    padding:0 18px;
+    border:2px solid #221A22;
+    background:#f7d14b;
+    color:#000;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+@media only screen and (max-width: 700px){
+    .player-nav{
+        padding:10px;
+    }
+
+    .player-nav-container{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .player-search-form{
+        width:100%;
+    }
+
+    .player-search-form input{
+        min-width:0;
+        width:100%;
+    }
+}
+
 /*player info*/
 .player-info{
     max-width:1400px;

@@ -1,0 +1,219 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrawlStats Update</title>
+    <link rel="stylesheet" href="./css/update.css">
+</head>
+<body>
+    <main class="update-page">
+        <section class="update-card">
+            <div class="update-header">
+                <h1>Update Brawler Data</h1>
+                <p>Add or update a brawler, gadgets, star powers, and images.</p>
+            </div>
+
+            <form id="update-form" enctype="multipart/form-data">
+                <fieldset>
+                    <legend>Security</legend>
+
+                    <label>
+                        Admin Password
+                        <input type="password" name="password" autocomplete="current-password" required>
+                    </label>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Brawler</legend>
+
+                    <div class="form-grid">
+                        <label>
+                            Brawler ID
+                            <input type="number" name="brawlerId" placeholder="16000105" required>
+                        </label>
+
+                        <label>
+                            Brawler Name
+                            <input type="text" name="brawlerName" placeholder="BOLT" required>
+                        </label>
+
+                        <label>
+                            Rarity
+                            <select name="rarity" required>
+                                <option value="">Select rarity</option>
+                                <option value="common">Common</option>
+                                <option value="rare">Rare</option>
+                                <option value="super_rare">Super Rare</option>
+                                <option value="epic">Epic</option>
+                                <option value="mythic">Mythic</option>
+                                <option value="legendary">Legendary</option>
+                                <option value="ultra_legendary">Ultra Legendary</option>
+                            </select>
+                        </label>
+
+                        <label>
+                            Disabled
+                            <select name="disabled">
+                                <option value="">False</option>
+                                <option value="true">True</option>
+                            </select>
+                        </label>
+
+                        <label>
+                            Arriving Soon
+                            <select name="arrivingSoon">
+                                <option value="">False</option>
+                                <option value="true">True</option>
+                            </select>
+                        </label>
+
+                        <label>
+                            Arriving Time
+                            <input type="text" name="arrivingTime" placeholder="Optional">
+                        </label>
+                    </div>
+
+                    <label class="file-label">
+                        Portrait Image
+                        <input type="file" name="portrait" accept="image/png,image/jpeg,image/webp">
+                    </label>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Gadgets</legend>
+
+                    <div class="item-section">
+                        <h2>Gadget 1</h2>
+                        <div class="form-grid">
+                            <label>
+                                Gadget 1 ID
+                                <input type="number" name="gadget1Id" placeholder="23001255">
+                            </label>
+
+                            <label>
+                                Gadget 1 Name
+                                <input type="text" name="gadget1Name" placeholder="FLOATY TIME">
+                            </label>
+                        </div>
+
+                        <label class="file-label">
+                            Gadget 1 Image
+                            <input type="file" name="gadget1Image" accept="image/png,image/jpeg,image/webp">
+                        </label>
+                    </div>
+
+                    <div class="item-section">
+                        <h2>Gadget 2</h2>
+                        <div class="form-grid">
+                            <label>
+                                Gadget 2 ID
+                                <input type="number" name="gadget2Id" placeholder="23001256">
+                            </label>
+
+                            <label>
+                                Gadget 2 Name
+                                <input type="text" name="gadget2Name" placeholder="SHINING STARR OF FRIENDSHIP AND JUSTICE">
+                            </label>
+                        </div>
+
+                        <label class="file-label">
+                            Gadget 2 Image
+                            <input type="file" name="gadget2Image" accept="image/png,image/jpeg,image/webp">
+                        </label>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Star Powers</legend>
+
+                    <div class="item-section">
+                        <h2>Star Power 1</h2>
+                        <div class="form-grid">
+                            <label>
+                                Star Power 1 ID
+                                <input type="number" name="starPower1Id" placeholder="23001253">
+                            </label>
+
+                            <label>
+                                Star Power 1 Name
+                                <input type="text" name="starPower1Name" placeholder="POWER LEVEL: MAXIMUM">
+                            </label>
+                        </div>
+
+                        <label class="file-label">
+                            Star Power 1 Image
+                            <input type="file" name="starPower1Image" accept="image/png,image/jpeg,image/webp">
+                        </label>
+                    </div>
+
+                    <div class="item-section">
+                        <h2>Star Power 2</h2>
+                        <div class="form-grid">
+                            <label>
+                                Star Power 2 ID
+                                <input type="number" name="starPower2Id" placeholder="23001254">
+                            </label>
+
+                            <label>
+                                Star Power 2 Name
+                                <input type="text" name="starPower2Name" placeholder="MYSTICAL STARR TECHNIQUE">
+                            </label>
+                        </div>
+
+                        <label class="file-label">
+                            Star Power 2 Image
+                            <input type="file" name="starPower2Image" accept="image/png,image/jpeg,image/webp">
+                        </label>
+                    </div>
+                </fieldset>
+
+                <button type="submit" id="submit-button">Save Brawler</button>
+
+                <p id="status-message" class="status-message" aria-live="polite"></p>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        const form = document.getElementById("update-form");
+        const statusMessage = document.getElementById("status-message");
+        const submitButton = document.getElementById("submit-button");
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            statusMessage.textContent = "Saving...";
+            statusMessage.className = "status-message";
+            submitButton.disabled = true;
+
+            try {
+                const formData = new FormData(form);
+
+                const response = await fetch("/api/admin/brawler", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || data.error) {
+                    throw new Error(data.reason || "Unable to save brawler");
+                }
+
+                statusMessage.textContent = data.message || "Brawler saved successfully.";
+                statusMessage.classList.add("success");
+            }
+            catch (error) {
+                statusMessage.textContent = error.message;
+                statusMessage.classList.add("error");
+            }
+            finally {
+                submitButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

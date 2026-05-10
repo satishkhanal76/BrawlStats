@@ -29,8 +29,8 @@ async function updatePlayer(tag) {
     playerCharacters.populateArrays();
     playerCharacters.addToDOM();
 
-    document.body.append(playerInfo.create().element);
-    document.body.append(playerCharacters.element.element);
+    document.getElementById('main-content').append(playerInfo.create().element);
+    document.getElementById('main-content').append(playerCharacters.element.element);
 
 }
 

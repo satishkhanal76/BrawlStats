@@ -11,6 +11,56 @@
 </head>
 <body>
     <!-- <button id="rarity">Sort By Rarity Descending</button> -->
+
+    <div class="player-nav-container">
+        <a href="../index.html" class="home-link">Brawl Stars Stats</a>
+
+        <form class="player-search-form" id="player-search-form">
+            <input
+                type="text"
+                id="player-search-input"
+                placeholder="Search player tag"
+                autocomplete="off"
+            >
+
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    <main id="main-content"></main>
+    <footer>
+        <div class="container">
+        <p>Brawl Stars Stats | Not affiliated with Supercell</p>
+
+        <p>
+            This content is not affiliated with, endorsed, sponsored, or specifically approved by Supercell,
+            and Supercell is not responsible for it. For more information see Supercell's Fan Content Policy.
+        </p>
+
+        <p>
+            This project was created for portfolio and educational purposes only. Data accuracy is not guaranteed,
+            and live player data may occasionally use cached fallback information.
+        </p>
+        </div>
+    </footer>
+    <script>
+        const playerSearchForm = document.getElementById("player-search-form");
+        const playerSearchInput = document.getElementById("player-search-input");
+
+        playerSearchForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            const tag = playerSearchInput.value
+                .trim()
+                .replace("#", "")
+                .toUpperCase();
+
+            if (!tag) return;
+
+            window.location.href = `./player.html?tag=${encodeURIComponent(tag)}`;
+        });
+    </script>
+
     <script src="../js/player.js" type="module"></script>
 </body>
 </html>

@@ -1,0 +1,188 @@
+
+
+:root{
+    --dark:#221A22;
+    --panel:#3D243A;
+    --panel-dark:#2B1A2A;
+    --yellow:#f7d14b;
+    --white:#fff;
+    --muted:#d6c4d3;
+    --danger:#ff6b6b;
+    --success:#7CFF8B;
+    --shadow:2px 3px 0 #000;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+html, body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+    font-family:Arial, Helvetica, sans-serif;
+    background:#160f16;
+    color:var(--white);
+}
+
+.update-page{
+    width:100%;
+    min-height:100vh;
+    padding:20px;
+}
+
+.update-card{
+    width:min(100%, 1000px);
+    margin:0 auto;
+    padding:20px;
+    border:2px solid var(--dark);
+    background:var(--panel);
+}
+
+.update-header{
+    padding-bottom:16px;
+    margin-bottom:18px;
+    border-bottom:2px solid var(--dark);
+}
+
+.update-header h1{
+    margin:0 0 8px;
+    font-size:42px;
+    line-height:46px;
+    color:var(--white);
+    text-shadow:var(--shadow);
+}
+
+.update-header p{
+    margin:0;
+    color:var(--muted);
+    font-size:18px;
+}
+
+form{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+}
+
+fieldset{
+    margin:0;
+    padding:16px;
+    border:2px solid var(--dark);
+    background:var(--panel-dark);
+}
+
+legend{
+    padding:0 8px;
+    font-size:24px;
+    color:var(--yellow);
+    text-shadow:var(--shadow);
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:14px;
+}
+
+label{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    color:var(--muted);
+    font-size:15px;
+}
+
+input, select, button{
+    font:inherit;
+}
+
+input, select{
+    width:100%;
+    min-height:42px;
+    padding:8px 10px;
+    border:2px solid var(--dark);
+    background:#fff;
+    color:#000;
+}
+
+.file-label{
+    margin-top:14px;
+}
+
+.file-label input{
+    padding:10px;
+    background:#fff;
+}
+
+.item-section{
+    padding:14px;
+    border:2px solid var(--dark);
+    background:#241723;
+    margin-bottom:14px;
+}
+
+.item-section:last-child{
+    margin-bottom:0;
+}
+
+.item-section h2{
+    margin:0 0 12px;
+    font-size:22px;
+    color:var(--white);
+    text-shadow:var(--shadow);
+}
+
+button{
+    min-height:50px;
+    border:2px solid var(--dark);
+    background:var(--yellow);
+    color:#000;
+    font-size:22px;
+    font-weight:bold;
+    cursor:pointer;
+    box-shadow:var(--shadow);
+}
+
+button:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+}
+
+.status-message{
+    min-height:24px;
+    margin:0;
+    font-size:18px;
+    color:var(--muted);
+}
+
+.status-message.success{
+    color:var(--success);
+}
+
+.status-message.error{
+    color:var(--danger);
+}
+
+@media only screen and (max-width: 700px){
+    .update-page{
+        padding:10px;
+    }
+
+    .update-card{
+        padding:12px;
+    }
+
+    .update-header h1{
+        font-size:32px;
+        line-height:36px;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    fieldset{
+        padding:12px;
+    }
+}

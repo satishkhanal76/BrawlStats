@@ -95,7 +95,6 @@ export class PlayerCharacters extends Characters {
             this._unlockedCharacters.push(character);
         });
 
-        console.log(this._unlockedCharacters, this._remainingCharacters, this._arrivingCharacters);
         this.arrivingCheck();
         this.calculateTotals();
 }
@@ -114,11 +113,26 @@ export class PlayerCharacters extends Characters {
         //need to loop backwards (When removing element the loop skips over an element)
         for (var i = this._remainingCharacters.length - 1; i >= 0; i--) {
             const character = this._remainingCharacters[i];
-            if (character.arriving_soon) {
-                this._arrivingCharacters.push(character);
-                this._remainingCharacters.remove(character);
-            }
+
+            if (!this.#isStillArriving(character)) continue;
+
+            this._arrivingCharacters.push(character);
+            this._remainingCharacters.remove(character);
         }
+    }
+
+    #isStillArriving(character) {
+        if (!character.arriving_soon) return false;
+        if (!character.arriving_time) return true;
+
+        const arrivingTimestamp = Number(character.arriving_time);
+        const arrivingTime = arrivingTimestamp < 10000000000
+            ? arrivingTimestamp * 1000
+            : arrivingTimestamp;
+
+        if (Number.isNaN(arrivingTime)) return true;
+
+        return arrivingTime > Date.now();
     }
     calculateTotals() {
         super.calculateTotals();
