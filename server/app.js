@@ -1,7 +1,7 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const { response, request } = require('express');
 const express = require('express');
-const path = require('path');
 const app = express();
 const csvtojson = require('csvtojson');
 
