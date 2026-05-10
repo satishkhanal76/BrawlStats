@@ -12,10 +12,10 @@ export class Characters {
         //keeps track of all of the requests promises
         this._promises = new ArrayList();
         //apis to get all of the characters and rarity
-        this._api = new Api("/api/csv/characters");
-        this._rarityApi = new Api("/api/csv/rarities");
-        this._gadgetsApi = new Api("/api/csv/gadgets");
-        this._starPowersApi = new Api("/api/csv/star-powers");
+        this._api = new Api("./api/csv/characters");
+        this._rarityApi = new Api("./api/csv/rarities");
+        this._gadgetsApi = new Api("./api/csv/gadgets");
+        this._starPowersApi = new Api("./api/csv/star-powers");
 
         this._characters = new ArrayList();
         this._total;
@@ -93,7 +93,7 @@ export class Characters {
             .filter((gadget) => gadget.characterId == characterId)
             .map((gadget) => ({
                 ...gadget,
-                image_src: `../assets/gadgets/${gadget.id}.png`
+                image_src: `./assets/gadgets/${gadget.id}.png`
             }));
     }
 
@@ -102,7 +102,7 @@ export class Characters {
             .filter((starPower) => starPower.characterId == characterId)
             .map((starPower) => ({
                 ...starPower,
-                image_src: `../assets/star-powers/${starPower.id}.png`
+                image_src: `./assets/star-powers/${starPower.id}.png`
             }));
     }
 

@@ -261,7 +261,7 @@ app.post(
                 disabled || '',
                 arrivingSoon || '',
                 arrivingTime || '',
-                `../assets/brawler_portraits/${brawlerId}.png`,
+                `./assets/brawler_portraits/${brawlerId}.png`,
                 rarity
             ]);
 

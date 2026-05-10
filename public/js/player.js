@@ -5,7 +5,7 @@ import { PlayerInfo } from "./classes/player_info_classes/PlayerInfo.js";
 let player;
 
 async function updatePlayer(tag) {
-    const api = new Api(`/api/player/${tag}`);
+    const api = new Api(`./api/player/${tag}`);
 
     console.log(api);
 
