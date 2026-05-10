@@ -14,6 +14,8 @@ export class Characters {
         //apis to get all of the characters and rarity
         this._api = new Api("/api/csv/characters");
         this._rarityApi = new Api("/api/csv/rarities");
+        this._gadgetsApi = new Api("/api/csv/gadgets");
+        this._starPowersApi = new Api("/api/csv/star-powers");
 
         this._characters = new ArrayList();
         this._total;
@@ -28,6 +30,8 @@ export class Characters {
         //check if calls were made
         this._promises.push(this._api.get());
         this._promises.push(this._rarityApi.get());
+        this._promises.push(this._gadgetsApi.get());
+        this._promises.push(this._starPowersApi.get());
         return Promise.all(this._promises);
     }
 
@@ -46,6 +50,9 @@ export class Characters {
         this._api.response.forEach(characterObj => {
             let rarity = this.getRarity(characterObj);//get the rarity 
             characterObj.rarity = rarity; //add rarity object to the character object
+            characterObj.gadgets = this.getCharacterGadgets(characterObj.id);
+            characterObj.starPowers = this.getCharacterStarPowers(characterObj.id);
+
             let character = new Character(characterObj);
             this._characters.push(character);
         });
@@ -79,6 +86,24 @@ export class Characters {
 
     getRarity(character) {
         return this._rarityApi.response.find(o => o.rarity == character.rarity);
+    }
+
+    getCharacterGadgets(characterId) {
+        return this._gadgetsApi.response
+            .filter((gadget) => gadget.characterId == characterId)
+            .map((gadget) => ({
+                ...gadget,
+                image_src: `../assets/gadgets/${gadget.id}.png`
+            }));
+    }
+
+    getCharacterStarPowers(characterId) {
+        return this._starPowersApi.response
+            .filter((starPower) => starPower.characterId == characterId)
+            .map((starPower) => ({
+                ...starPower,
+                image_src: `../assets/star-powers/${starPower.id}.png`
+            }));
     }
 
     calculateTotals() {

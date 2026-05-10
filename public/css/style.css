@@ -1,1 +1,93 @@
 @import url('font/stylesheet.css');
+
+/* Reset & base styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: #1b1b2f;
+  color: #f0f0f0;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Header */
+header {
+  background-color: #162447;
+  padding: 2rem 0;
+  border-bottom: 4px solid #e43f5a;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  color: #e43f5a;
+}
+
+header p {
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+  color: #ddd;
+}
+
+/* Search Section */
+.search-section {
+  margin: 3rem 0;
+}
+
+.search-section input {
+  padding: 0.8rem;
+  width: 70%;
+  max-width: 400px;
+  border: none;
+  border-radius: 8px 0 0 8px;
+  font-size: 1rem;
+}
+
+.search-section button {
+  padding: 0.8rem 1.2rem;
+  font-size: 1rem;
+  border: none;
+  background-color: #e43f5a;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 0 8px 8px 0;
+  transition: background-color 0.3s;
+}
+
+.search-section button:hover {
+  background-color: #ff2e4c;
+}
+
+.hint {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+/* Placeholder for more sections */
+.coming-soon {
+  margin-top: 4rem;
+  background: #0f0f1a;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid #333;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: #111;
+  font-size: 0.9rem;
+  color: #888;
+}

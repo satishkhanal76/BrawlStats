@@ -1,4 +1,3 @@
-import { Api } from "../Api.js";
 import { Element } from "../built_in_classes/Element.js";
 import { Character } from "../Character.js";
 
@@ -12,46 +11,31 @@ export class PlayerCharacter extends Character {
         this._power = character.power;
         this._trophies = character.trophies;
         this._highestTrophies = character.highestTrophies;
-        this._rank = character.rank;
-        this._rankObj = character.rankObj;
-        this._rankImg;
-        this._milestonesObj = character.milestonesObj;
-        this._progressStart;
-        this._progress;
-        this._progressEnd;
+        this._currentWinStreak = character.currentWinStreak;
+        this._maxWinStreak = character.maxWinStreak;
+        this._prestigeLevel = character.prestigeLevel;
 
+        this._powerElement = new Element({type: "p", class: "power", parent: this._characterPotraitElement});
 
-        this.calculateRankImg();
-        this.calculateMilestone();
         //unlocked character dom elements
-        this._firstElement = new Element({type: "div", class: "first", parent: this._element, addType: "prepend"});
-        this._progressElement = new Element({type: "div", class: "progress", parent: this._firstElement});
-        this._progressFillElement = new Element({type: "div", class: "progress-fill", parent: this._progressElement});
-        this._trophiesElement = new Element({type: "div", class: "trophies", parent: this._progressElement});
-        this._trophiesNumElement = new Element({type: "div", class: "trophies-num", parent: this._trophiesElement});
 
-        this._rankContainerElement = new Element({type: "div", class: "rank-container", parent: this._firstElement});
-        this._rankElement = new Element({type: "div", class: "rank", parent: this._rankContainerElement});
-        this._rankTitleElement = new Element({type: "div", class: "rank-title", parent: this._rankElement});
-        this._rankNumberElement = new Element({type: "div", class: "rank-number", parent: this._rankElement});
-        this._rankImgElement = new Element({type: "div", class: "rank-img", parent: this._rankElement});
+        this._trophiesElement = new Element({type: "p", class: "trophies", parent: this._characterDetailsElement});
+        this._highestTrophiesElement = new Element({type: "p", class: "highest-trophies", parent: this._characterDetailsElement});
+        this._currentWinStreakElement = new Element({type: "p", class: "current-win-streak", parent: this._characterDetailsElement});
+        this._maxWinStreakElement = new Element({type: "p", class: "max-win-streak", parent: this._characterDetailsElement});
+        this._prestigeLevelElement = new Element({type: "p", class: "prestige-level", parent: this._characterDetailsElement});
     }
 
     populateDOM(){
         super.populateDOM();
 
-        this._progressFillElement.element.style.width = `${this.calculateProgressWidth()}%`;
+        this._powerElement.text = (`Power: ${this.power}`);
 
-        if(this._progressEnd !== null){
-            this._trophiesNumElement.text = `${this.trophies} / ${this._progressEnd}`;
-        }else{
-            this._trophiesNumElement.text = `${this.trophies}`;
-        }
-
-        this._rankImgElement.element.style.backgroundImage = `url('${this._rankImg}')`;
-        
-        this._rankTitleElement.text = "RANK";
-        this._rankNumberElement.text = this.rank;
+        this._trophiesElement.text = (`Trophies: ${this.trophies}`);
+        this._highestTrophiesElement.text = (`Highest Trophies: ${this.highestTrophies}`);
+        this._currentWinStreakElement.text = (`Current Win Streak: ${this.currentWinStreak}`);
+        this._maxWinStreakElement.text = (`Max Win Streak: ${this.maxWinStreak}`);
+        this._prestigeLevelElement.text = (`Prestige Level: ${this.prestigeLevel}`);
     }
 
     
@@ -61,30 +45,6 @@ export class PlayerCharacter extends Character {
         return this._element;
     }
 
-    calculateRankImg() {
-        this._rankObj.find(o => {
-            
-            let progressEnd = o.progressStart + o.progress;
-            if (this._rank >= o.progressStart && this._rank <= progressEnd) {
-                this._rankImg = o.img_src;
-            }
-        });
-    }
-
-    calculateMilestone() {
-        if (this._milestonesObj) {
-            this._progressStart = this._milestonesObj.ProgressStart;
-            this._progress = this._milestonesObj.Progress;
-            this._progressEnd = this._progressStart + this._progress;
-        } else {
-            //player at the max rank with this character
-            this._progressEnd = null;
-        }
-    }
-    calculateProgressWidth(){
-        let currentProgress = this.trophies - this._progressStart;
-        return (currentProgress / this._progress) * 100;
-    }
     //getter and setters
     get trophies() {
         return this._trophies;
@@ -98,16 +58,28 @@ export class PlayerCharacter extends Character {
     set power(power) {
         this._power = power;
     }
-    get rank() {
-        return this._rank;
-    }
-    set rank(rank) {
-        this._rank = rank;
-    }
     get highestTrophies() {
         return this._highestTrophies;
     }
     set highestTrophies(highestTrophies) {
         this._highestTrophies = highestTrophies;
+    }
+    get currentWinStreak() {
+        return this._currentWinStreak;
+    }
+    set currentWinStreak(currentWinStreak) {
+        this._currentWinStreak = currentWinStreak;
+    }
+    get maxWinStreak() {
+        return this._maxWinStreak;
+    }
+    set maxWinStreak(maxWinStreak) {
+        this._maxWinStreak = maxWinStreak;
+    }
+    get prestigeLevel() {
+        return this._prestigeLevel;
+    }
+    set prestigeLevel(prestigeLevel) {
+        this._prestigeLevel = prestigeLevel;
     }
 }

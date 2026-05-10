@@ -1,14 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../css/style.css">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Brawl Stats</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-    <a href="../player">Search for a Player</a>
-    <script src="./js/main.js" type="module"></script>
+  <header>
+    <div class="container">
+      <h1>Brawl Stats</h1>
+      <p>Search Brawl Stars player stats using their tag</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="search-section">
+      <form method="get" action="/player.html" id="searchForm">
+        <input style="text-transform: uppercase;" type="text" id="tag" name="tag" placeholder="Player Tag (#82JJVPRUL)" required />
+        <button type="submit">Search</button>
+      </form>
+      <p class="hint">Tip: You can find your tag in the Brawl Stars profile screen.</p>
+    </section>
+
+    <!-- Future: Leaderboard, latest players, etc. -->
+    <section class="coming-soon">
+      <h2>🔥 Featured Stats Coming Soon!</h2>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Brawl Stats | Not affiliated with Supercell</p>
+  </footer>
 </body>
 </html>

@@ -1,4 +1,3 @@
-
 html, body{
     margin: 0;
     padding: 0;
@@ -19,6 +18,70 @@ html, body{
     font-size:20px;
 }
 
+/*player info*/
+.player-info{
+    max-width:1400px;
+    margin:20px auto;
+    padding:18px;
+    border:2px solid #221A22;
+    background:#3D243A;
+    color:#fff;
+}
+
+.player-info-header{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:16px;
+    border-bottom:2px solid #221A22;
+    padding-bottom:12px;
+}
+
+.player-name{
+    margin:0;
+    font-size:42px;
+    line-height:46px;
+    color:#fff;
+    text-shadow:var(--txsh);
+}
+
+.player-tag{
+    margin:0;
+    font-size:20px;
+    line-height:24px;
+    color:#ffffff;
+    text-shadow:var(--txsh);
+}
+
+.player-info-stats{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:12px;
+}
+
+.player-info-stat{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    padding:10px;
+    border:2px solid #221A22;
+    background:#2B1A2A;
+}
+
+.player-info-stat-label{
+    font-size:14px;
+    line-height:16px;
+    color:#d6c4d3;
+}
+
+.player-info-stat-value{
+    font-size:24px;
+    line-height:28px;
+    color:#fff;
+    text-shadow:var(--txsh);
+}
+
 /*characters*/
 .characters{
     padding: 0;
@@ -29,7 +92,7 @@ html, body{
 }
 .characters-title, .characters-unlocked-title, .characters-remaining-title, .characters-arriving-title{
     font-size: 40px;
-    margin: 10px 0;
+    margin: 40px 0 18px;
     padding: 0;
 }
 .characters-all, .characters-unlocked, .characters-remaining, .characters-arriving{
@@ -48,110 +111,8 @@ html, body{
     position:relative;
 }
 
-.character .first .rank-container{
-    position:absolute;
-    
-    top: -35%;
-    left: -5%;
-    
-}
-.character .first .rank-container .rank{
-    position: relative;
-}
-.character .first .rank-container .rank .rank-img{
-    background: url("../assets/images/ranks/icon_rank_1.png");
-    background-size:100% 100%;
-    /* width: 66px;
-    height: 72px; */
-    width: 56px;
-    height: 62px;
-}
-.character .first .rank-container .rank .rank-title{
-    position: absolute;
-    text-align:center;
-    left:0%;
-    top: 20%;
-    width:100%;
-    
-    font-size: 13px;
-    line-height: 16px;
-    /* identical to box height */
-    
-    
-    color: #000000;
-    
-    transform: matrix(0.99, -0.14, 0.14, 0.99, 0, 0);
-}
-.character .first .rank-container .rank .rank-number{
-    position: absolute;
-    text-align:center;
-    left:3%;
-    top: 48%;
-    width:100%;
-    
-    font-size: 19px;
-    line-height: 23px;
-    /* identical to box height */
-    
-    
-    color: #fff;
-    transform: matrix(1, -0.09, 0.09, 1, 0, 0);
-    
-    text-shadow: var(--txsh);
-}
 
-.character .first .progress{
-    position: relative;
-    height: 40px;
-    background: #460027;
-    border: 2px solid #221A22;
-    box-sizing: border-box;
-    overflow:hidden;
-}
-
-
-.character .first .progress .trophies{
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height: 100%;
-    display:flex;
-    align-items:center;
-    justify-content: center;
-    font-size:20px;
-    text-shadow: var(--txsh)
-}
-.character .first .progress .trophies .trophies-num{
-    color:#fff;
-}
-.character .first .progress .trophies::before{
-    content: '';
-    position:relative;
-    background: url("../assets/images/icon_trophy_medium.png");
-    background-size: 100%;
-    background-repeat: no-repeat;
-    width: 30px;
-    height: 30px;
-    align-self:center;
-    background-position:center;
-}
-.character .first .progress .progress-fill{
-    position:relative;
-    width:0%;
-    height:100%;
-    transition: width .5s;
-    background-color: #D75C41;
-    -webkit-transform-origin: 100% 0;
-    -ms-transform-origin: 100% 0;
-    transform-origin: 100% 0;
-    -webkit-transform: skew(-25deg);
-    -ms-transform: skew(-25deg);
-    transform: skew(-25deg);
-}
-
-
-.character .second{
+.character .character-potrait-container{
     z-index:-1;
     position:relative;
     height: 175px;
@@ -193,12 +154,46 @@ html, body{
     line-height: 27px;
 }
 
-.third{
+.character-details{
     border: 2px solid #221A22;
     background-color: #3D243A;
     padding:10px;
 }
-.third .highest-trophies, .coming-soon{
+
+.character-details .item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#fff;
+    margin-bottom:10px;
+    padding:6px;
+    border:2px solid #221A22;
+    background-color:#2B1A2A;
+}
+
+.character-details .item:last-child{
+    margin-bottom:0;
+}
+
+.character-details .item-img{
+    flex:0 0 42px;
+    width:42px;
+    height:42px;
+    background-size:contain;
+    background-repeat:no-repeat;
+    background-position:center;
+}
+
+.character-details .item-name{
+    margin:0;
+    font-size:16px;
+    line-height:18px;
+    color:#fff;
+    text-shadow:var(--txsh);
+    white-space:pre-wrap;
+    word-wrap:break-word;
+}
+.character-details .highest-trophies, .coming-soon{
     color: #fff;
     display:flex;
     justify-content: space-between;
@@ -206,7 +201,7 @@ html, body{
     margin-bottom:10px;
     overflow:hidden;
 }
-.third .highest-trophies .ht-title, .cs-title{
+.character-details .highest-trophies .ht-title, .cs-title{
     max-width:80%;
     white-space: pre-wrap;      /* CSS3 */   
     white-space: -moz-pre-wrap; /* Firefox */    
@@ -214,6 +209,17 @@ html, body{
     white-space: -o-pre-wrap;   /* Opera 7 */    
     word-wrap: break-word;
 }
+
+.character-details .item.locked{
+    filter:grayscale(1);
+    opacity:0.35;
+}
+
+.character-details .item.unlocked{
+    filter:none;
+    opacity:1;
+}
+
 @media only screen and (max-width: 1290px) {
   .characters-unlocked, .characters-remaining, .characters-arriving{
         grid-template-columns: repeat(3, 1fr);
@@ -228,5 +234,24 @@ html, body{
   .characters-unlocked, .characters-remaining, .characters-arriving{
         margin: 0 10px;
         grid-template-columns: repeat(1, 1fr);
+    }
+    
+    .player-info{
+        margin:10px;
+        padding:12px;
+    }
+
+    .player-info-header{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .player-name{
+        font-size:34px;
+        line-height:38px;
+    }
+
+    .player-info-stats{
+        grid-template-columns:repeat(1, 1fr);
     }
 }

@@ -1,7 +1,6 @@
 import { Characters } from "./Characters.js";
 import { ArrayList } from "./built_in_classes/ArrayList.js";
 import { Element } from "./built_in_classes/Element.js";
-import { Api } from "./Api.js";
 import { PlayerCharacter } from "./character_classes/PlayerCharacter.js";
 
 export class PlayerCharacters extends Characters {
@@ -13,8 +12,6 @@ export class PlayerCharacters extends Characters {
         super();
         this._paramObj = characters;
 
-        this._rankApi = new Api("/api/csv/ranks");
-        this._milestonesApi = new Api("/api/csv/csv_logic/milestones");
 
 
         this._unlockedCharacters = new ArrayList();
@@ -37,13 +34,6 @@ export class PlayerCharacters extends Characters {
         this._unlockedElement = new Element({type: "div", class: "characters-unlocked", parent: this._unlockedCharactersElement});
         this._remainingElement = new Element({type: "div", class: "characters-remaining", parent: this._remainingCharactersElement});
         this._arrivingElement = new Element({type: "div", class: "characters-arriving", parent: this._arrivingCharactersElement});
-    }
-
-    load() {
-        super.load();
-        this._promises.push(this._rankApi.get());
-        this._promises.push(this._milestonesApi.get());
-        return Promise.all(this._promises);
     }
 
     addToDOM() {
@@ -74,28 +64,56 @@ export class PlayerCharacters extends Characters {
             this._arrivingTitleElement.text = `Arriving Brawlers (${this._totalArriving})`;
         }
     }
+    
     populateArrays() {
         super.populateArrays();
-        this._remainingCharacters = this._characters.slice();
 
-        this._paramObj.forEach(obj => {
-            let char = this._remainingCharacters.find(o => o.id == obj.id);
-            if (char) {
-                this._remainingCharacters.remove(char);
-                let object = Object.assign(char._paramObj, obj);
-                object.rankObj = this._rankApi.response;
-                object.milestonesObj = this.getMilestone(obj);
-                let character = new PlayerCharacter(object);
-                this._unlockedCharacters.push(character);
+        this._unlockedCharacters = new ArrayList();
+        this._remainingCharacters = new ArrayList();
+        this._arrivingCharacters = new ArrayList();
+
+        const playerCharacterMap = new Map(
+            this._paramObj.map((playerCharacter) => [String(playerCharacter.id), playerCharacter])
+        );
+
+        this._characters.forEach((char) => {
+            const playerCharacter = playerCharacterMap.get(String(char.id));
+
+            if (!playerCharacter) {
+                this._remainingCharacters.push(char);
+                return;
             }
+
+            const object = {
+                ...char._paramObj,
+                ...playerCharacter,
+                gadgets: this.#markUnlockedItems(char._paramObj.gadgets, playerCharacter.gadgets),
+                starPowers: this.#markUnlockedItems(char._paramObj.starPowers, playerCharacter.starPowers)
+            };
+
+            const character = new PlayerCharacter(object);
+            this._unlockedCharacters.push(character);
         });
+
+        console.log(this._unlockedCharacters, this._remainingCharacters, this._arrivingCharacters);
         this.arrivingCheck();
         this.calculateTotals();
+}
+
+    #markUnlockedItems(allItems, unlockedItems) {
+        if (!allItems) return [];
+        if (!unlockedItems) return allItems.map((item) => ({...item, unlocked: false}));
+
+        return allItems.map((item) => {
+            const isUnlocked = unlockedItems.some((unlockedItem) => unlockedItem.id == item.id);
+            return {...item, unlocked: isUnlocked};
+        });
     }
+
     arrivingCheck() {
         //need to loop backwards (When removing element the loop skips over an element)
         for (var i = this._remainingCharacters.length - 1; i >= 0; i--) {
-            let character = this._remainingCharacters[i];
+            const character = this._remainingCharacters[i];
             if (character.arriving_soon) {
                 this._arrivingCharacters.push(character);
                 this._remainingCharacters.remove(character);
@@ -110,9 +128,6 @@ export class PlayerCharacters extends Characters {
         this._totalPossible = this._totalUnlocked + this._totalRemaining;
     }
 
-    getMilestone(character) {
-        return this._milestonesApi.response.find(o => o.Name == `goal_1_${character.rank - 1}`);
-    }
 
     get totalUnlocked() {
         return this._totalUnlocked;
@@ -131,26 +146,24 @@ export class PlayerCharacters extends Characters {
     }
 }
 
-const characters = new PlayerCharacters();
-characters.load();
+// const characters = new PlayerCharacters();
+// characters.load();
 
 
 
-async function loadPlayer(tag) {
-    tag = tag.replace("#", "");
-    const player = new Api(`/api/player/${tag}`);
-    const data = await player.get();
+// async function loadPlayer(tag) {
+//     tag = tag.replace("#", "");
+//     const player = new Api(`/api/player/${tag}`);
+//     const data = await player.get();
 
-    const characterObj = await data.brawlers;
-    characters.paramObj = await characterObj;
-    //can only run these characters methods after the data is received from the server
-    await characters.loaded().then(() => {
-        characters.populateArrays();
-        characters.addToDOM();
-        document.body.append(characters.element.element);
-    })
-}
+//     const characterObj = await data.brawlers;
+//     characters.paramObj = await characterObj;
+//     //can only run these characters methods after the data is received from the server
+//     await characters.loaded().then(() => {
+//         characters.populateArrays();
+//         characters.addToDOM();
+//         document.body.append(characters.element.element);
+//     })
+// }
 
- loadPlayer("#JYJGCL");
-
- console.log(characters)
+//  loadPlayer("#82jjvprul");

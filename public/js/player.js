@@ -1,54 +1,49 @@
 import { Api } from "./classes/Api.js";
 import { PlayerCharacters } from "./classes/PlayerCharacters.js";
-let api;
+import { PlayerInfo } from "./classes/player_info_classes/PlayerInfo.js";
+
 let player;
 
-function updatePlayer(tag) {
-    api.get().then(data => {
-       console.log(data)
+async function updatePlayer(tag) {
+    const api = new Api(`/api/player/${tag}`);
 
-       player = new PlayerCharacters(data.brawlers);
-       player.addToDOM();
-        // api.getMilestones().then(milestones => {
-        //     player.loadBrawlerMilestones(milestones);
-        //     player.loadPlayer(data);
-        //     player.brawlers.sortByRarity();
-        // });
-    });
+    console.log(api);
+
+    const playerData = await api.get();
+
+    if (playerData.isFallbackData) {
+
+    alert(
+
+        `Could not load player data. Using fallback snapshot instead.\n(${playerData.fallbackReason})`
+
+    );
+
+}
+    const playerInfo = new PlayerInfo(playerData);
+    console.log(playerData);
+    const playerCharacters = new PlayerCharacters(playerData.brawlers);
+    playerCharacters.load();
+    await playerCharacters.loaded();
+
+    playerCharacters.populateArrays();
+    playerCharacters.addToDOM();
+
+    document.body.append(playerInfo.create().element);
+    document.body.append(playerCharacters.element.element);
+
 }
 
 function checkUrl() {
-    const curretUrl = window.location.href;
-    const splitUrl = curretUrl.split("/player/");
+    const urlParams = new URLSearchParams(window.location.search);
+    const playerTag = urlParams.get('tag').replace('%23', '').replace('#', '');
 
-    const playerTag = splitUrl[1];
     if (playerTag) {
         updatePlayer(playerTag);
+    }else {
+        alert('No player tag provided in URL');
     }
 };
 
-
-//form submit
-const playerForm = document.getElementById("playerSearchForm");
-const tag = document.getElementById("tag");
-
-playerForm.addEventListener("submit", event => {
-    event.preventDefault();
-    let tag = document.getElementById("tag").value;
-    console.log(tag)
-    api = new Api(`/api/player/${tag}`);
-    updatePlayer();
-});
-// form submit complete
-
-//get the characters and their rarities
-api.getCharaters().then(characters => {
-    api.getRarities().then(rarities => {
-            player.loadGeneralBrawlers(characters, rarities);
-            //player.addBrawlersToDom();
-    });
-});
-
 //check and request if a player tag exist in the url
 checkUrl();
-
