@@ -57,7 +57,7 @@
 
             if (!tag) return;
 
-            window.location.href = `./player.html?tag=${encodeURIComponent(tag)}`;
+            window.location.href = `${window.location.pathname}?tag=${encodeURIComponent(tag)}`;
         });
     </script>
 
