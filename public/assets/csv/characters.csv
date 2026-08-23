@@ -103,3 +103,5 @@ id, name,disabled,arriving_soon,arriving_time,image_src,rarity
 16000104, DAMIAN,,,,./assets/brawler_portraits/16000104.png,mythic
 16000105, STARR NOVA,,,,./assets/brawler_portraits/16000105.png,legendary
 16000106, BOLT,,,,./assets/brawler_portraits/16000106.png,epic
+16000107, NORI,,,,./assets/brawler_portraits/16000107.png,legendary
+16000108, WENDY,,,,./assets/brawler_portraits/16000108.png,mythic
