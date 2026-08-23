@@ -192,7 +192,7 @@
             try {
                 const formData = new FormData(form);
 
-                const response = await fetch("/api/admin/brawler", {
+                const response = await fetch("./api/admin/brawler", {
                     method: "POST",
                     body: formData
                 });
