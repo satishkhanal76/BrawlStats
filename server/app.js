@@ -11,7 +11,14 @@ const multer = require('multer');
 //my imports
 const Player = require('./classes/Player.js');
 const API = require('./classes/Api.js');
+const {
+    prepareGitPublisher,
+    publishBrawlerUpdate,
+    saveBrawlerUpdate,
+    validateBrawlerUpdate
+} = require('./services/brawlerUpdate.js');
 
+const AUTO_PUBLISH_BRAWLER_UPDATES = process.env.AUTO_PUBLISH_BRAWLER_UPDATES !== 'false';
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
@@ -179,40 +186,9 @@ function adminRateLimit(request, response, next) {
     next();
 }
 
-function upsertCSVRow(filePath, id, row) {
-    let content = fs.readFileSync(filePath, 'utf8').trim();
-    const lines = content.split('\n');
+let adminUpdateInProgress = false;
 
-    const header = lines[0];
-    const rows = lines.slice(1);
-
-    const rowString = row.join(',');
-
-    let updated = false;
-
-    const newRows = rows.map(existingRow => {
-        const existingId = existingRow.split(',')[0].trim();
-
-        if (String(existingId) === String(id)) {
-            updated = true;
-            return rowString;
-        }
-
-        return existingRow;
-    });
-
-    if (!updated) {
-        newRows.push(rowString);
-    }
-
-    fs.writeFileSync(filePath, [header, ...newRows].join('\n') + '\n');
-}
-
-function saveImage(file, outputPath) {
-    if (!file) return;
-    fs.writeFileSync(outputPath, file.buffer);
-}
-
+// Keep the shared Git index isolated while an update is being saved and published.
 app.post(
     '/api/admin/brawler',
     adminRateLimit,
@@ -224,123 +200,63 @@ app.post(
         { name: 'starPower2Image', maxCount: 1 }
     ]),
     async (request, response) => {
+        if (!process.env.ADMIN_PASSWORD || request.body.password !== process.env.ADMIN_PASSWORD) {
+            response.status(401).json({
+                error: true,
+                reason: 'Invalid password'
+            });
+            return;
+        }
+
+        if (adminUpdateInProgress) {
+            response.status(409).json({
+                error: true,
+                reason: 'Another brawler update is in progress. Try again shortly.'
+            });
+            return;
+        }
+
+        adminUpdateInProgress = true;
+        let filesSaved = false;
         try {
-            if (request.body.password !== process.env.ADMIN_PASSWORD) {
-                response.status(401).json({
-                    error: true,
-                    reason: 'Invalid password'
-                });
-                return;
+            validateBrawlerUpdate(request.body, request.files);
+            if (AUTO_PUBLISH_BRAWLER_UPDATES) {
+                await prepareGitPublisher();
             }
 
-            const {
-                brawlerId,
-                brawlerName,
-                rarity,
-                disabled,
-                arrivingSoon,
-                arrivingTime,
-
-                gadget1Id,
-                gadget1Name,
-                gadget2Id,
-                gadget2Name,
-
-                starPower1Id,
-                starPower1Name,
-                starPower2Id,
-                starPower2Name
-            } = request.body;
-
-            const csvFolder = path.join(__dirname, '../public/assets/csv');
-
-            const charactersCSV = path.join(csvFolder, 'characters.csv');
-            const gadgetsCSV = path.join(csvFolder, 'gadgets.csv');
-            const starPowersCSV = path.join(csvFolder, 'star-powers.csv');
-
-            upsertCSVRow(charactersCSV, brawlerId, [
-                brawlerId,
-                ` ${brawlerName}`,
-                disabled || '',
-                arrivingSoon || '',
-                arrivingTime || '',
-                `./assets/brawler_portraits/${brawlerId}.png`,
-                rarity
-            ]);
-
-            if (gadget1Id && gadget1Name) {
-                upsertCSVRow(gadgetsCSV, gadget1Id, [
-                    gadget1Id,
-                    `"${gadget1Name}"`,
-                    brawlerId
-                ]);
-            }
-
-            if (gadget2Id && gadget2Name) {
-                upsertCSVRow(gadgetsCSV, gadget2Id, [
-                    gadget2Id,
-                    `"${gadget2Name}"`,
-                    brawlerId
-                ]);
-            }
-
-            if (starPower1Id && starPower1Name) {
-                upsertCSVRow(starPowersCSV, starPower1Id, [
-                    starPower1Id,
-                    `"${starPower1Name}"`,
-                    brawlerId
-                ]);
-            }
-
-            if (starPower2Id && starPower2Name) {
-                upsertCSVRow(starPowersCSV, starPower2Id, [
-                    starPower2Id,
-                    `"${starPower2Name}"`,
-                    brawlerId
-                ]);
-            }
-
-            const portraitFolder = path.join(__dirname, '../public/assets/brawler_portraits');
-            const gadgetsFolder = path.join(__dirname, '../public/assets/gadgets');
-            const starPowersFolder = path.join(__dirname, '../public/assets/star-powers');
-
-            saveImage(
-                request.files?.portrait?.[0],
-                path.join(portraitFolder, `${brawlerId}.png`)
-            );
-
-            saveImage(
-                request.files?.gadget1Image?.[0],
-                path.join(gadgetsFolder, `${gadget1Id}.png`)
-            );
-
-            saveImage(
-                request.files?.gadget2Image?.[0],
-                path.join(gadgetsFolder, `${gadget2Id}.png`)
-            );
-
-            saveImage(
-                request.files?.starPower1Image?.[0],
-                path.join(starPowersFolder, `${starPower1Id}.png`)
-            );
-
-            saveImage(
-                request.files?.starPower2Image?.[0],
-                path.join(starPowersFolder, `${starPower2Id}.png`)
-            );
+            const changedFiles = saveBrawlerUpdate(request.body, request.files);
+            filesSaved = true;
+            const result = AUTO_PUBLISH_BRAWLER_UPDATES
+                ? await publishBrawlerUpdate(changedFiles)
+                : null;
 
             response.json({
                 success: true,
-                message: 'Brawler updated successfully'
+                message: !AUTO_PUBLISH_BRAWLER_UPDATES
+                    ? 'Brawler updated successfully. Automatic Git publishing is disabled.'
+                    : result.commitHash
+                        ? `Brawler updated and pushed to GitHub (${result.commitHash}).`
+                        : 'Brawler data is up to date; no commit was needed.'
             });
         }
         catch(error) {
-            console.error(error);
+            if (!error.statusCode) console.error(error);
 
-            response.status(500).json({
+            const reason = error.statusCode
+                ? error.message
+                : error.committed
+                    ? 'Brawler data was saved and committed locally, but pushing to GitHub failed. Check the server logs.'
+                    : filesSaved
+                        ? 'Brawler data was saved on the server, but the automatic commit failed. Check the server logs.'
+                        : error.message;
+
+            response.status(error.statusCode || 500).json({
                 error: true,
-                reason: error.message
+                reason
             });
+        }
+        finally {
+            adminUpdateInProgress = false;
         }
     }
 );

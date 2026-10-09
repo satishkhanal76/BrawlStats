@@ -131,6 +131,12 @@ The update system can modify:
 
 The server updates the corresponding CSV records and stores the uploaded images using their IDs. Administrative requests are password-protected and rate-limited.
 
+After an update, the server stages only the CSV files and images changed by that request, creates a commit, and pushes it to the current branch's configured upstream. The droplet's BrawlStats checkout must have an upstream branch, a working Git identity, and GitHub push access available to the user running the server. Configure the remote to use SSH if the droplet's SSH key is the credential for GitHub.
+
+Automatic publishing is controlled by `AUTO_PUBLISH_BRAWLER_UPDATES`. It is enabled by default; set `AUTO_PUBLISH_BRAWLER_UPDATES=false` in the server environment (or `.env`) to keep saving brawler data on the server without staging, committing, or pushing it. Restart the server after changing the setting.
+
+The route refuses to run while the repository already has staged changes, and concurrent update submissions receive a conflict response. If the files are saved but the commit or push fails, the admin page reports the failure; check the server logs and repository state before retrying.
+
 ## Running Locally
 
 Install the dependencies:
