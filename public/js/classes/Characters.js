@@ -3,6 +3,15 @@ import { Element } from "./built_in_classes/Element.js";
 import { Api } from "./Api.js";
 import { Character } from "./Character.js";
 
+const defaultGears = [
+    { id: 62000000, name: "SPEED" },
+    { id: 62000001, name: "HEALTH" },
+    { id: 62000002, name: "DAMAGE" },
+    { id: 62000003, name: "VISION" },
+    { id: 62000004, name: "SHIELD" },
+    { id: 62000017, name: "GADGET COOLDOWN" }
+];
+
 export class Characters {
     /**
      * Creates a Charaters class that stores all of Character classes
@@ -65,7 +74,7 @@ export class Characters {
             characterObj.gadgets = this.getCharacterGadgets(characterObj.id);
             characterObj.starPowers = this.getCharacterStarPowers(characterObj.id);
             const upgrades = this._upgrades[characterObj.id];
-            characterObj.gears = upgrades?.gears ?? [];
+            characterObj.gears = upgrades?.gears ?? defaultGears;
             characterObj.hyperCharges = upgrades?.hyperCharges ?? [];
 
             let character = new Character(characterObj);

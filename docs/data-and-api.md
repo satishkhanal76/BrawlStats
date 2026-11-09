@@ -408,7 +408,10 @@ gear and Hypercharge lists by brawler ID in `public/assets/json/brawler-upgrades
 Shared gears use one icon per gear ID, even when many brawlers can use them.
 Upload icons as `public/assets/gears/<id>.png` and
 `public/assets/hypercharges/<id>.png`. Missing icons appear in the sync summary.
-Player cards still show the upgrade name and unlock state while artwork is missing.
+Player cards still show the upgrade name and unlock state while artwork is missing. The
+production update form also accepts an optional Hypercharge ID, name and PNG.
+Brawlers without a gear list use the six shared gears. Form edits are saved on
+the server, so copy any changes you want to keep back to the repository.
 
 Fill in the rarity for each new brawler using a value from `rarities.csv`, upload
 the PNGs listed in the draft to the same branch, and review artwork for renamed

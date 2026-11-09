@@ -213,6 +213,53 @@ function saveImage(file, outputPath) {
     fs.writeFileSync(outputPath, file.buffer);
 }
 
+const upgradesFile = path.join(__dirname, '../public/assets/json/brawler-upgrades.json');
+const hyperchargeFolder = path.join(__dirname, '../public/assets/hypercharges');
+const pngSignature = Buffer.from('89504e470d0a1a0a', 'hex');
+
+function prepareHyperchargeUpdate(body, image) {
+    const id = body.hyperchargeId;
+    const name = typeof body.hyperchargeName === 'string' ? body.hyperchargeName.trim() : '';
+    if (!id && !name && !image) return {};
+
+    if (typeof id !== 'string' || !/^[1-9]\d*$/.test(id) || !Number.isSafeInteger(Number(id))) {
+        return { error: 'Enter a valid Hypercharge ID.' };
+    }
+    if (image && !image.buffer.subarray(0, pngSignature.length).equals(pngSignature)) {
+        return { error: 'Choose a PNG image for the Hypercharge.' };
+    }
+
+    const catalogue = JSON.parse(fs.readFileSync(upgradesFile, 'utf8'));
+    const brawler = catalogue[body.brawlerId] ?? {};
+    const itemId = Number(id);
+    const belongsToAnotherBrawler = Object.entries(catalogue).some(([brawlerId, upgrades]) =>
+        brawlerId !== body.brawlerId && upgrades.hyperCharges?.some(item => item.id === itemId));
+    if (belongsToAnotherBrawler) return { error: 'That Hypercharge ID belongs to another brawler.' };
+
+    const existing = brawler.hyperCharges?.find(item => item.id === itemId);
+    if (!name && !existing) return { error: 'Enter a name for the new Hypercharge.' };
+
+    catalogue[body.brawlerId] = {
+        ...brawler,
+        hyperCharges: [{ id: itemId, name: name || existing.name }]
+    };
+
+    return { catalogue, itemId };
+}
+
+function saveHypercharge(update, image) {
+    if (!update.catalogue) return;
+
+    saveImage(image, path.join(hyperchargeFolder, `${update.itemId}.png`));
+
+    // The player page can read the catalogue while an admin request is saving.
+    const temporary = `${upgradesFile}.${process.pid}.tmp`;
+    const entries = Object.entries(update.catalogue).map(([id, upgrades]) =>
+        `    "${id}": ${JSON.stringify(upgrades)}`);
+    fs.writeFileSync(temporary, `{\n${entries.join(',\n')}\n}\n`);
+    fs.renameSync(temporary, upgradesFile);
+}
+
 app.post(
     '/api/admin/brawler',
     adminRateLimit,
@@ -221,11 +268,12 @@ app.post(
         { name: 'gadget1Image', maxCount: 1 },
         { name: 'gadget2Image', maxCount: 1 },
         { name: 'starPower1Image', maxCount: 1 },
-        { name: 'starPower2Image', maxCount: 1 }
+        { name: 'starPower2Image', maxCount: 1 },
+        { name: 'hyperchargeImage', maxCount: 1 }
     ]),
     async (request, response) => {
         try {
-            if (request.body.password !== process.env.ADMIN_PASSWORD) {
+            if (!process.env.ADMIN_PASSWORD || request.body.password !== process.env.ADMIN_PASSWORD) {
                 response.status(401).json({
                     error: true,
                     reason: 'Invalid password'
@@ -251,6 +299,18 @@ app.post(
                 starPower2Id,
                 starPower2Name
             } = request.body;
+
+            if (typeof brawlerId !== 'string' || !/^[1-9]\d*$/.test(brawlerId)) {
+                response.status(400).json({ error: true, reason: 'Enter a valid Brawler ID.' });
+                return;
+            }
+
+            const hyperchargeImage = request.files?.hyperchargeImage?.[0];
+            const hypercharge = prepareHyperchargeUpdate(request.body, hyperchargeImage);
+            if (hypercharge.error) {
+                response.status(400).json({ error: true, reason: hypercharge.error });
+                return;
+            }
 
             const csvFolder = path.join(__dirname, '../public/assets/csv');
 
@@ -328,6 +388,8 @@ app.post(
                 request.files?.starPower2Image?.[0],
                 path.join(starPowersFolder, `${starPower2Id}.png`)
             );
+
+            saveHypercharge(hypercharge, hyperchargeImage);
 
             response.json({
                 success: true,
