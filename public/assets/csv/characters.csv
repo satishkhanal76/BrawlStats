@@ -107,3 +107,6 @@ id, name,disabled,arriving_soon,arriving_time,image_src,rarity
 16000108, WENDY,,,,./assets/brawler_portraits/16000108.png,mythic
 16000109, COSMO,,true,,./assets/brawler_portraits/16000109.png,mythic
 16000110, VINCE,,true,,./assets/brawler_portraits/16000110.png,mythic
+16000111,"THUNDER FROGS",,,,./assets/brawler_portraits/16000111.png,
+16000112,"REY",,,,./assets/brawler_portraits/16000112.png,
+16000113,"RUBY",,,,./assets/brawler_portraits/16000113.png,
