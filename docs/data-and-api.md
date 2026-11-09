@@ -381,3 +381,47 @@ That separation makes the application resilient to changes in any individual sou
 For example, a player can still be represented using a local snapshot if the live API is unavailable, while the local brawler catalogue can continue to provide portraits, rarities, gadgets, and Star Powers.
 
 The application therefore behaves more like a small data-composition system than a simple API viewer.
+## Catalogue sync
+
+Use **Actions → Sync brawler catalogue → Run workflow** on the default branch. The
+default run only reports changes. Select **Open a draft pull request** to prepare CSV
+updates. A run with no CSV changes reports missing artwork in the Actions summary.
+Finish or close an existing sync PR before opening another.
+
+Configure one source in **Settings → Secrets and variables → Actions**:
+
+- Set the `BRAWL_CATALOGUE_URL` variable to a read-only HTTPS URL returning the full
+  catalogue as an object with an `items` array. The existing `/bs/brawlers` route
+  can serve as this source if it is deployed and returns the complete catalogue.
+- Or set the `BRAWL_API_TOKEN` secret and run from an IP allowed by the API key.
+  Standard GitHub-hosted runners use dynamic IPs. The direct API fetch follows
+  pagination. A snapshot with an additional page is rejected.
+
+To let the workflow open draft PRs, enable **Allow GitHub Actions to create and
+approve pull requests** under **Settings → Actions → General → Workflow permissions**.
+GitHub may also ask you to approve workflow runs for a PR opened by Actions.
+
+The sync matches records by ID. It adds brawlers, gadgets and Star Powers, updates
+names and item ownership when they change, and retains local rows absent from the
+API. It preserves existing rarity and release settings. Gears and Hypercharges
+are outside this sync.
+
+Fill in the rarity for each new brawler using a value from `rarities.csv`, upload
+the PNGs listed in the draft to the same branch, and review artwork for renamed
+items. The PR check verifies that newly added entries have the required image
+files and that new brawlers have valid rarities. Mark the PR ready for review once
+these checks pass.
+
+To preview from a saved API response or prepare the CSV changes on a local branch:
+
+```sh
+npm run sync:brawlers -- --preview /path/to/brawlers.json
+npm run sync:brawlers -- --write /path/to/brawlers.json
+```
+
+Omit the file to fetch from the configured source or from the official API using
+the token in your environment or `.env`.
+
+Before retiring the production update form, verify that merging a catalogue PR
+deploys the CSVs and images. The checked-in Azure workflow currently targets
+`master`, so confirm which branch and deployment workflow production uses.

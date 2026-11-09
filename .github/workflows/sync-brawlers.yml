@@ -1,0 +1,89 @@
+name: Sync brawler catalogue
+
+on:
+  workflow_dispatch:
+    inputs:
+      open_pull_request:
+        description: Open a draft pull request with the proposed changes
+        type: boolean
+        default: false
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'public/assets/csv/characters.csv'
+      - 'public/assets/csv/gadgets.csv'
+      - 'public/assets/csv/star-powers.csv'
+      - 'public/assets/csv/rarities.csv'
+      - 'public/assets/brawler_portraits/**'
+      - 'public/assets/gadgets/**'
+      - 'public/assets/star-powers/**'
+      - 'scripts/sync-brawlers.js'
+      - '.github/workflows/sync-brawlers.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    if: github.event_name == 'workflow_dispatch' && github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    concurrency: brawler-catalogue-sync
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts
+      - name: Compare with the Brawl Stars catalogue
+        env:
+          BRAWL_CATALOGUE_URL: ${{ vars.BRAWL_CATALOGUE_URL }}
+          BRAWL_API_TOKEN: ${{ secrets.BRAWL_API_TOKEN }}
+          OPEN_PULL_REQUEST: ${{ inputs.open_pull_request }}
+        run: |
+          set -o pipefail
+          mode=--preview
+          if [[ "$OPEN_PULL_REQUEST" == true ]]; then mode=--write; fi
+          node scripts/sync-brawlers.js "$mode" | tee "$RUNNER_TEMP/brawler-report.md"
+          cat "$RUNNER_TEMP/brawler-report.md" >> "$GITHUB_STEP_SUMMARY"
+      - name: Open a draft pull request
+        if: inputs.open_pull_request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_BRANCH: ${{ github.ref_name }}
+        run: |
+          if git diff --quiet -- public/assets/csv; then exit 0; fi
+          existing=$(gh pr list --base "$BASE_BRANCH" --state open --json headRefName,url \
+            --jq '.[] | select(.headRefName | startswith("brawler-sync/")) | .url')
+          if [[ -n "$existing" ]]; then
+            echo "Finish or close the existing catalogue pull request first: $existing" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          branch="brawler-sync/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          git switch -c "$branch"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/assets/csv/{characters,gadgets,star-powers}.csv
+          git commit -m 'Sync Brawl Stars catalogue'
+          git push origin "$branch"
+          gh pr create --draft --base "$BASE_BRANCH" --head "$branch" \
+            --title 'Sync Brawl Stars catalogue' --body-file "$RUNNER_TEMP/brawler-report.md"
+
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts
+      - name: Check new entries for rarity and artwork
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: node scripts/sync-brawlers.js --validate "$BASE_SHA"
