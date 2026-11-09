@@ -42,7 +42,9 @@ async function loadCatalogue(file) {
         if (!file && new URL(snapshot).protocol !== 'https:') {
             throw new Error('BRAWL_CATALOGUE_URL must use HTTPS');
         }
-        const data = file ? JSON.parse(await fs.readFile(file, 'utf8')) : await getJson(snapshot);
+        const payload = file ? JSON.parse(await fs.readFile(file, 'utf8')) : await getJson(snapshot);
+        // The deployed Express proxy wraps the upstream JSON in a JSON string.
+        const data = typeof payload === 'string' ? JSON.parse(payload) : payload;
         if (data?.paging?.cursors?.after) throw new Error('The snapshot must include every page');
         return getPage(data);
     }
