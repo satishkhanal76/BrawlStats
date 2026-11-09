@@ -29,12 +29,17 @@ export class Character {
         this._nameElement = new Element({type: "div", class: "character-name", parent: this._characterPotraitElement});
         
         this._characterDetailsElement = new Element({type: "div", class: "character-details", parent: this._element, addType: "append"});
+        this._itemGrid = new Element({
+            type: "div", attributes: { class: "character-items", role: "group", "aria-label": "Brawler upgrades" }
+        });
+        this._hyperCharges = this.#createItems(character.hyperCharges, "hypercharges", "HC");
+        this._gears = this.#createItems(character.gears, "gears", "Gear");
     }
-    
 
-    #createItems(items, filePath){
-        if (!items) return [];
-        return items.map((item) => new Item({...item, imageSrc: `./assets/${filePath}/${item.id}.png`}));
+    #createItems(items, filePath, iconFallback) {
+        return (items ?? []).map((item) => new Item({
+            ...item, iconFallback, imageSrc: `./assets/${filePath}/${item.id}.png`
+        }));
     }
 
     populateDOM(){
@@ -47,13 +52,11 @@ export class Character {
         this._imageElement.element.style.backgroundImage = `url('${this._image_src}')`;
         this._nameElement.text = this.name.toUpperCase();
 
-        this._gadgets.forEach((gadget) => {
-            this._characterDetailsElement.append(gadget.create());
-        });
-
-        this._starPowers.forEach((starPower) => {
-            this._characterDetailsElement.append(starPower.create());
-        });
+        const items = [...this._gadgets, ...this._starPowers, ...this._hyperCharges, ...this._gears];
+        if (items.length) {
+            this._itemGrid.append(items.map((item) => item.create()));
+            this._characterDetailsElement.append(this._itemGrid);
+        }
     }
 
     create(){

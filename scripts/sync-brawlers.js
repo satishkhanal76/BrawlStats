@@ -7,6 +7,8 @@ const fetch = require('node-fetch');
 const root = path.join(__dirname, '..');
 const assets = path.join(root, 'public/assets');
 const officialUrl = 'https://api.brawlstars.com/v1/brawlers';
+const upgradesPath = 'public/assets/json/brawler-upgrades.json';
+const upgradeFolders = { gears: 'gears', hyperCharges: 'hypercharges' };
 const tables = [
     { file: 'characters', folder: 'brawler_portraits' },
     { file: 'gadgets', folder: 'gadgets', field: 'gadgets' },
@@ -130,14 +132,53 @@ async function planTable(table, entries, report) {
         if (!await imageExists(image)) report.push(`- [ ] Add \`public/${image}\` for ${entry.name}`);
     }
 
-    if (!replacements.size && !additions.length) return content;
+    const file = path.join(root, csvPath(table));
+    if (!replacements.size && !additions.length) return { file, content, updated: content };
     const newline = content.includes('\r\n') ? '\r\n' : '\n';
     const [header, ...lines] = content.trimEnd().split(/\r?\n/);
     if (lines.length !== rows.size || lines.some(line => !rows.has(Number(line.split(',')[0])))) {
         throw new Error(`Unexpected CSV layout in ${csvPath(table)}`);
     }
-    return [header, ...lines.map(line => replacements.get(Number(line.split(',')[0])) ?? line),
+    const updated = [header, ...lines.map(line => replacements.get(Number(line.split(',')[0])) ?? line),
         ...additions, ''].join(newline);
+    return { file, content, updated };
+}
+
+async function planUpgrades(brawlers, report) {
+    const file = path.join(root, upgradesPath);
+    const content = await fs.readFile(file, 'utf8');
+    const catalogue = JSON.parse(content);
+
+    for (const [field, folder] of Object.entries(upgradeFolders)) {
+        const reported = new Set();
+        for (const brawler of brawlers) {
+            const items = brawler[field];
+            if (items === undefined) continue;
+            if (!Array.isArray(items)) throw new Error(`Invalid ${field} for ${brawler.id}`);
+            validateEntries(items, field);
+            const upgrades = catalogue[brawler.id] ??= {};
+            const entries = items.map(({ id, name }) => ({ id, name }));
+            const previous = upgrades[field] ?? [];
+            if (JSON.stringify(previous) !== JSON.stringify(entries)) {
+                report.push(`- Updated ${folder} for ${brawler.name} (${brawler.id})`);
+            }
+            upgrades[field] = entries;
+
+            for (const item of entries) {
+                if (reported.has(item.id)) continue;
+                reported.add(item.id);
+                const image = `assets/${folder}/${item.id}.png`;
+                if (!await imageExists(image)) {
+                    report.push(`- [ ] Add \`public/${image}\` for ${item.name}`);
+                }
+            }
+        }
+    }
+
+    // Keep one brawler per line so a change to its upgrades has a small diff.
+    const rows = Object.entries(catalogue).map(([id, upgrades]) =>
+        `    "${id}": ${JSON.stringify(upgrades)}`);
+    return { file, content, updated: `{\n${rows.join(',\n')}\n}\n` };
 }
 
 async function validate(base) {
@@ -181,12 +222,13 @@ async function main() {
         planned.push(await planTable(table, entries, report));
     }
 
+    planned.push(await planUpgrades(brawlers, report));
+
     if (option === '--write') {
-        for (const [index, table] of tables.entries()) {
-            const file = path.join(root, csvPath(table));
-            if (planned[index] === await fs.readFile(file, 'utf8')) continue;
+        for (const { file, content, updated } of planned) {
+            if (content === updated) continue;
             const temporary = `${file}.${process.pid}.tmp`;
-            await fs.writeFile(temporary, planned[index], { flag: 'wx' });
+            await fs.writeFile(temporary, updated, { flag: 'wx' });
             await fs.rename(temporary, file);
         }
     }

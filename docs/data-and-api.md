@@ -403,8 +403,12 @@ GitHub may also ask you to approve workflow runs for a PR opened by Actions.
 
 The sync matches records by ID. It adds brawlers, gadgets and Star Powers, updates
 names and item ownership when they change, and retains local rows absent from the
-API. It preserves existing rarity and release settings. Gears and Hypercharges
-are outside this sync.
+API. It preserves existing rarity and release settings. It also records the API's
+gear and Hypercharge lists by brawler ID in `public/assets/json/brawler-upgrades.json`.
+Shared gears use one icon per gear ID, even when many brawlers can use them.
+Upload icons as `public/assets/gears/<id>.png` and
+`public/assets/hypercharges/<id>.png`. Missing icons appear in the sync summary.
+Player cards still show the upgrade name and unlock state while artwork is missing.
 
 Fill in the rarity for each new brawler using a value from `rarities.csv`, upload
 the PNGs listed in the draft to the same branch, and review artwork for renamed

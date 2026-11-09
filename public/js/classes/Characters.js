@@ -17,6 +17,7 @@ export class Characters {
         this._gadgetsApi = new Api("./api/csv/gadgets");
         this._starPowersApi = new Api("./api/csv/star-powers");
 
+        this._upgrades = {};
         this._characters = new ArrayList();
         this._total;
 
@@ -32,7 +33,18 @@ export class Characters {
         this._promises.push(this._rarityApi.get());
         this._promises.push(this._gadgetsApi.get());
         this._promises.push(this._starPowersApi.get());
+        this._promises.push(this.loadUpgrades());
         return Promise.all(this._promises);
+    }
+
+    async loadUpgrades() {
+        try {
+            const response = await fetch("./assets/json/brawler-upgrades.json");
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            this._upgrades = await response.json();
+        } catch (error) {
+            console.warn("Could not load the brawler upgrade catalogue.", error);
+        }
     }
 
     /**
@@ -52,6 +64,9 @@ export class Characters {
             characterObj.rarity = rarity; //add rarity object to the character object
             characterObj.gadgets = this.getCharacterGadgets(characterObj.id);
             characterObj.starPowers = this.getCharacterStarPowers(characterObj.id);
+            const upgrades = this._upgrades[characterObj.id];
+            characterObj.gears = upgrades?.gears ?? [];
+            characterObj.hyperCharges = upgrades?.hyperCharges ?? [];
 
             let character = new Character(characterObj);
             this._characters.push(character);
