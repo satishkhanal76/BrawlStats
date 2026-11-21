@@ -88,7 +88,9 @@ export class PlayerCharacters extends Characters {
                 ...char._paramObj,
                 ...playerCharacter,
                 gadgets: this.#markUnlockedItems(char._paramObj.gadgets, playerCharacter.gadgets),
-                starPowers: this.#markUnlockedItems(char._paramObj.starPowers, playerCharacter.starPowers)
+                starPowers: this.#markUnlockedItems(char._paramObj.starPowers, playerCharacter.starPowers),
+                gears: this.#markUnlockedUpgrades(char._paramObj.gears, playerCharacter.gears),
+                hyperCharges: this.#markUnlockedUpgrades(char._paramObj.hyperCharges, playerCharacter.hyperCharges)
             };
 
             const character = new PlayerCharacter(object);
@@ -98,6 +100,13 @@ export class PlayerCharacters extends Characters {
         this.arrivingCheck();
         this.calculateTotals();
 }
+
+    #markUnlockedUpgrades(catalogue, owned) {
+        owned = Array.isArray(owned) ? owned : [];
+        const knownIds = new Set(catalogue.map((item) => String(item.id)));
+        const extra = owned.filter((item) => !knownIds.has(String(item.id)));
+        return this.#markUnlockedItems([...catalogue, ...extra], owned);
+    }
 
     #markUnlockedItems(allItems, unlockedItems) {
         if (!allItems) return [];

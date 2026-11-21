@@ -197,7 +197,8 @@ app.post(
         { name: 'gadget1Image', maxCount: 1 },
         { name: 'gadget2Image', maxCount: 1 },
         { name: 'starPower1Image', maxCount: 1 },
-        { name: 'starPower2Image', maxCount: 1 }
+        { name: 'starPower2Image', maxCount: 1 },
+        { name: 'hyperchargeImage', maxCount: 1 }
     ]),
     async (request, response) => {
         if (!process.env.ADMIN_PASSWORD || request.body.password !== process.env.ADMIN_PASSWORD) {

@@ -39,12 +39,6 @@ export class PlayerCharacter extends Character {
     }
 
     
-    create(){
-        super.create();
-        this.populateDOM();
-        return this._element;
-    }
-
     //getter and setters
     get trophies() {
         return this._trophies;

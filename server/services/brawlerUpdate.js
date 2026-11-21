@@ -5,6 +5,9 @@ const { promisify } = require('util');
 
 const execFileAsync = promisify(execFile);
 const repositoryRoot = path.resolve(__dirname, '../..');
+const upgradesFile = path.join(repositoryRoot, 'public/assets/json/brawler-upgrades.json');
+const hyperchargeFolder = path.join(repositoryRoot, 'public/assets/hypercharges');
+const pngSignature = Buffer.from('89504e470d0a1a0a', 'hex');
 
 function runGit(args) {
     return execFileAsync('git', args, { cwd: repositoryRoot });
@@ -14,6 +17,36 @@ function createRequestError(message, statusCode = 400) {
     const error = new Error(message);
     error.statusCode = statusCode;
     return error;
+}
+
+function prepareHyperchargeUpdate(body, image) {
+    const id = body.hyperchargeId;
+    const name = typeof body.hyperchargeName === 'string' ? body.hyperchargeName.trim() : '';
+    if (!id && !name && !image) return {};
+
+    if (typeof id !== 'string' || !/^[1-9]\d*$/.test(id) || !Number.isSafeInteger(Number(id))) {
+        return { error: 'Enter a valid Hypercharge ID.' };
+    }
+    if (image && !image.buffer.subarray(0, pngSignature.length).equals(pngSignature)) {
+        return { error: 'Choose a PNG image for the Hypercharge.' };
+    }
+
+    const catalogue = JSON.parse(fs.readFileSync(upgradesFile, 'utf8'));
+    const brawler = catalogue[body.brawlerId] ?? {};
+    const itemId = Number(id);
+    const belongsToAnotherBrawler = Object.entries(catalogue).some(([brawlerId, upgrades]) =>
+        brawlerId !== body.brawlerId && upgrades.hyperCharges?.some(item => item.id === itemId));
+    if (belongsToAnotherBrawler) return { error: 'That Hypercharge ID belongs to another brawler.' };
+
+    const existing = brawler.hyperCharges?.find(item => item.id === itemId);
+    if (!name && !existing) return { error: 'Enter a name for the new Hypercharge.' };
+
+    catalogue[body.brawlerId] = {
+        ...brawler,
+        hyperCharges: [{ id: itemId, name: name || existing.name }]
+    };
+
+    return { catalogue, itemId };
 }
 
 function validateBrawlerUpdate(body, files = {}) {
@@ -43,6 +76,10 @@ function validateBrawlerUpdate(body, files = {}) {
     if (uploadedImages.some(([file, id]) => file && !id)) {
         throw createRequestError('Each gadget or Star Power image requires its matching ID.');
     }
+
+    const hypercharge = prepareHyperchargeUpdate(body, files.hyperchargeImage?.[0]);
+    if (hypercharge.error) throw createRequestError(hypercharge.error);
+    return hypercharge;
 }
 
 function upsertCSVRow(filePath, id, row) {
@@ -68,7 +105,7 @@ function saveImage(file, outputPath) {
 }
 
 function saveBrawlerUpdate(body, files = {}) {
-    validateBrawlerUpdate(body, files);
+    const hypercharge = validateBrawlerUpdate(body, files);
 
     const {
         brawlerId,
@@ -131,6 +168,22 @@ function saveBrawlerUpdate(body, files = {}) {
         const imagePath = path.join(folder, `${id}.png`);
         saveImage(file, imagePath);
         changedFiles.push(imagePath);
+    }
+
+    if (hypercharge.catalogue) {
+        const image = files.hyperchargeImage?.[0];
+        if (image) {
+            const imagePath = path.join(hyperchargeFolder, `${hypercharge.itemId}.png`);
+            saveImage(image, imagePath);
+            changedFiles.push(imagePath);
+        }
+
+        const temporary = `${upgradesFile}.${process.pid}.tmp`;
+        const entries = Object.entries(hypercharge.catalogue).map(([id, upgrades]) =>
+            `    "${id}": ${JSON.stringify(upgrades)}`);
+        fs.writeFileSync(temporary, `{\n${entries.join(',\n')}\n}\n`);
+        fs.renameSync(temporary, upgradesFile);
+        changedFiles.push(upgradesFile);
     }
 
     return [...new Set(changedFiles)];

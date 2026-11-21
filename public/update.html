@@ -13,7 +13,7 @@
         <section class="update-card">
             <div class="update-header">
                 <h1>Update Brawler Data</h1>
-                <p>Add or update a brawler, gadgets, star powers, and images.</p>
+                <p>Add or update a brawler, gadgets, Star Powers, Hypercharge, and images.</p>
             </div>
 
             <form id="update-form" enctype="multipart/form-data">
@@ -168,6 +168,29 @@
                             <input type="file" name="starPower2Image" accept="image/png,image/jpeg,image/webp">
                         </label>
                     </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Hypercharge</legend>
+
+                    <p>Leave these fields blank to keep the current Hypercharge. To replace an existing icon, enter its ID and choose a PNG.</p>
+
+                    <div class="form-grid">
+                        <label>
+                            Hypercharge ID
+                            <input type="number" name="hyperchargeId" min="1" step="1">
+                        </label>
+
+                        <label>
+                            Hypercharge Name
+                            <input type="text" name="hyperchargeName">
+                        </label>
+                    </div>
+
+                    <label class="file-label">
+                        Hypercharge Image
+                        <input type="file" name="hyperchargeImage" accept="image/png,.png">
+                    </label>
                 </fieldset>
 
                 <button type="submit" id="submit-button">Save Brawler</button>
