@@ -1,93 +1,98 @@
 @import url('font/stylesheet.css');
 
-/* Reset & base styles */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+:root {
+  color-scheme: dark;
+  --surface: #202020;
+  --surface-raised: #2b2b2b;
+  --surface-soft: #303030;
+  --text: #f1f5f9;
+  --muted: #a3a3a3;
+  --line: rgba(226, 232, 240, 0.13);
+  --accent: #e98947;
+  --accent-hover: #f59b5c;
 }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: #1b1b2f;
-  color: #f0f0f0;
-  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  color: var(--text);
+  background: radial-gradient(ellipse at 50% -15%, #38302b 0, transparent 48%), var(--surface);
+  font: 400 1rem/1.6 "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
+.container { width: min(100% - 2rem, 880px); margin-inline: auto; padding: 2rem 0; text-align: center; }
 
-/* Header */
 header {
-  background-color: #162447;
-  padding: 2rem 0;
-  border-bottom: 4px solid #e43f5a;
+  position: relative;
+  background: rgba(32, 32, 32, 0.7);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(16px);
 }
 
-header h1 {
-  font-size: 2.5rem;
-  color: #e43f5a;
+header::after {
+  content: "PLAYER DATA · BRAWL STARS";
+  display: block;
+  padding: 0.7rem 1rem;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
 }
 
-header p {
-  font-size: 1.1rem;
-  margin-top: 0.5rem;
-  color: #ddd;
-}
+header h1 { color: var(--text); font-size: clamp(2rem, 5vw, 3.25rem); letter-spacing: -0.045em; }
+header p { margin-top: 0.55rem; color: var(--muted); }
+main.container { flex: 1; display: grid; place-items: center; }
 
-/* Search Section */
 .search-section {
-  margin: 3rem 0;
+  width: min(100%, 680px);
+  margin: 2rem auto;
+  padding: clamp(1.25rem, 5vw, 2.75rem);
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  background: linear-gradient(145deg, rgba(255,255,255,.055), rgba(255,255,255,.018)), var(--surface-raised);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .25);
 }
 
-.search-section input {
-  padding: 0.8rem;
-  width: 70%;
-  max-width: 400px;
-  border: none;
-  border-radius: 8px 0 0 8px;
-  font-size: 1rem;
+.search-section form { display: flex; gap: 0.7rem; }
+.search-section input, .player-search-form input {
+  min-width: 0;
+  flex: 1;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: #1a1a1a;
+  color: var(--text);
+  font: inherit;
 }
+.search-section input::placeholder, .player-search-form input::placeholder { color: #777; }
+.search-section input:focus, .player-search-form input:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.search-section button {
-  padding: 0.8rem 1.2rem;
-  font-size: 1rem;
-  border: none;
-  background-color: #e43f5a;
-  color: #fff;
+.search-section button, .player-search-form button {
+  padding: 0.8rem 1.25rem;
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+  background: var(--accent);
+  color: #1b1714;
+  font: inherit;
+  font-weight: 750;
   cursor: pointer;
-  border-radius: 0 8px 8px 0;
-  transition: background-color 0.3s;
+  transition: background-color .2s ease, transform .2s ease;
 }
+.search-section button:hover, .player-search-form button:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.hint { margin-top: 1rem; color: var(--muted); font-size: 0.9rem; }
+.coming-soon { margin-top: 4rem; padding: 2rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--surface-raised); }
 
-.search-section button:hover {
-  background-color: #ff2e4c;
-}
+footer { border-top: 1px solid var(--line); background: rgba(18, 18, 18, .6); color: var(--muted); font-size: 0.82rem; }
+footer .container { padding-block: 1.25rem; }
+footer p + p { margin-top: .65rem; }
 
-.hint {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: #aaa;
-}
-
-/* Placeholder for more sections */
-.coming-soon {
-  margin-top: 4rem;
-  background: #0f0f1a;
-  padding: 2rem;
-  border-radius: 12px;
-  border: 1px solid #333;
-}
-
-/* Footer */
-footer {
-  text-align: center;
-  padding: 1rem;
-  background-color: #111;
-  font-size: 0.9rem;
-  color: #888;
+@media (max-width: 520px) {
+  .container { width: min(100% - 1.25rem, 880px); }
+  .search-section form { flex-direction: column; }
+  .search-section button { min-height: 48px; }
+  header::after { letter-spacing: .1em; }
 }
